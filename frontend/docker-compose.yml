@@ -1,58 +1,59 @@
 version: '3.8'
 
 services:
+  # DATABASE
   db:
     image: postgres:15-alpine
     container_name: dashboard_db
+    restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: dashboard_db
-    ports:
-      - "5433:5432"
+      POSTGRES_USER: ${POSTGRES_USER}      # Uses .env
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - dashboard-network
 
+  # BACKEND API
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: dashboard_backend
+    restart: always
     ports:
-      - "5001:5000"
+      - "5000:5000"
     environment:
-      DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: dashboard_db
-      NODE_ENV: development
+      DB_NAME: ${POSTGRES_DB}
+      NODE_ENV: production
     depends_on:
       - db
     networks:
       - dashboard-network
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    # Removed 'volumes' (We want the code baked into the image, not linked to a folder)
 
+  # FRONTEND DASHBOARD
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: dashboard_frontend
+    restart: always
     ports:
-      - "5174:5173"
+      - "80:80"  # CHANGED: Maps Server Port 80 to Container Port 80 (Nginx)
     environment:
-      VITE_API_URL: http://localhost:5000
+      # CHANGED: Must be the Public IP of your CentOS server, NOT localhost
+      VITE_API_URL: http://YOUR_SERVER_IP_HERE:5000
     depends_on:
       - backend
     networks:
       - dashboard-network
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+    # Removed 'volumes' (Crucial: relying on the Nginx build, not source code)
 
 volumes:
   postgres_data:
@@ -60,3 +61,4 @@ volumes:
 networks:
   dashboard-network:
     driver: bridge
+    
