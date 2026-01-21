@@ -13,7 +13,7 @@ function App() {
   useEffect(() => {
     // Use the Docker service name when running in containers
     const apiUrl = import.meta.env.DEV 
-      ? 'http://localhost:5001/api/dashboard'  // For local dev
+      ? 'http://192.168.88.132:5001/api/dashboard'  // For local dev
       : 'http://dashboard-backend:5000/api/dashboard'  // For Docker network
     
     fetch(apiUrl)
