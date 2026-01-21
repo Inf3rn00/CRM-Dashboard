@@ -20,7 +20,7 @@ jobs:
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
+        password: ${{ secrets.SERVER_PASSWORD }}
         script: |
           # A. Create folder if it doesn't exist
           mkdir -p my-app
