@@ -1,0 +1,47 @@
+name: Deploy to CentOS Server
+
+on:
+  push:
+    branches: [ main ]  # Trigger this ONLY when you push to 'main' branch
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Check out the latest code
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    # 2. SSH into Server and Update
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        script: |
+          # A. Create folder if it doesn't exist
+          mkdir -p my-app
+          cd my-app
+
+          # B. Pull latest code (Clone if empty, Pull if exists)
+          if [ -d ".git" ]; then
+            git pull origin main
+          else
+            git clone https://github.com/${{ github.repository }}.git .
+          fi
+
+          # C. Create .env file from GitHub Secrets (So Docker can read passwords)
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+
+          # D. Rebuild and Restart Containers
+          # This command stops old containers, rebuilds new ones, and starts them
+          sudo docker compose down
+          sudo docker compose up -d --build
+
+          # E. Clean up unused images to save space
+          sudo docker system prune -f
