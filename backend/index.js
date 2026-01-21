@@ -27,6 +27,14 @@ pool.on('error', (err) => {
 // Initialize database with sample data
 async function initializeDatabase() {
   try {
+    console.log('🔄 Resetting database to update numbers...');
+    
+    // --- STEP 1: WIPE OLD DATA (So new numbers can enter) ---
+    await pool.query('DROP TABLE IF EXISTS deals CASCADE');
+    await pool.query('DROP TABLE IF EXISTS tasks CASCADE');
+    await pool.query('DROP TABLE IF EXISTS customers CASCADE');
+    // --------------------------------------------------------
+
     // Create tables
     await pool.query(`
       CREATE TABLE IF NOT EXISTS customers (
@@ -61,48 +69,48 @@ async function initializeDatabase() {
       )
     `);
 
-    // Check if data already exists
-    const result = await pool.query('SELECT COUNT(*) FROM customers');
-    if (result.rows[0].count === 0) {
-      // Seed customers
-      await pool.query(`
-        INSERT INTO customers (name, email, company, status) VALUES
-        ('John Smith', 'john@techcorp.com', 'Tech Corp', 'Active'),
-        ('Sarah Johnson', 'sarah@innovate.com', 'Innovate Labs', 'Active'),
-        ('Michael Chen', 'michael@growth.io', 'Growth Inc', 'Active'),
-        ('Emma Davis', 'emma@startupx.com', 'StartupX', 'Prospect'),
-        ('David Wilson', 'david@enterprise.com', 'Enterprise Co', 'Active'),
-        ('Lisa Anderson', 'lisa@creative.net', 'Creative Studios', 'Prospect')
-      `);
+    // Seed customers
+    console.log('🌱 Seeding new customers...');
+    await pool.query(`
+      INSERT INTO customers (name, email, company, status) VALUES
+      ('John Smith', 'john@techcorp.com', 'Tech Corp', 'Active'),
+      ('Sarah Johnson', 'sarah@innovate.com', 'Innovate Labs', 'Active'),
+      ('Michael Chen', 'michael@growth.io', 'Growth Inc', 'Active'),
+      ('Emma Davis', 'emma@startupx.com', 'StartupX', 'Prospect'),
+      ('David Wilson', 'david@enterprise.com', 'Enterprise Co', 'Active'),
+      ('Lisa Anderson', 'lisa@creative.net', 'Creative Studios', 'Prospect')
+    `);
 
-      // Seed deals
-      await pool.query(`
-        INSERT INTO deals (title, amount, stage, customer_id) VALUES
-        ('Enterprise License', 50000, 'Closed Won', 1),
-        ('Implementation Services', 25000, 'Negotiation', 2),
-        ('Annual Subscription', 15000, 'Proposal', 3),
-        ('Consulting Package', 35000, 'Qualification', 4),
-        ('Platform Setup', 20000, 'Closed Won', 5),
-        ('Support Plan', 8000, 'Closed Won', 6),
-        ('Custom Integration', 45000, 'Proposal', 1),
-        ('Training Package', 12000, 'Negotiation', 2)
-      `);
+    // Seed deals (I UPDATED THESE NUMBERS FOR YOU)
+    console.log('🌱 Seeding new deals...');
+    await pool.query(`
+      INSERT INTO deals (title, amount, stage, customer_id) VALUES
+      ('Enterprise License', 95000, 'Closed Won', 1),
+      ('Implementation Services', 25000, 'Negotiation', 2),
+      ('Annual Subscription', 15000, 'Proposal', 3),
+      ('Consulting Package', 35000, 'Qualification', 4),
+      ('Platform Setup', 20000, 'Closed Won', 5),
+      ('Support Plan', 8000, 'Closed Won', 6),
+      ('Custom Integration', 45000, 'Proposal', 1),
+      ('Training Package', 12000, 'Negotiation', 2)
+    `);
 
-      // Seed tasks
-      await pool.query(`
-        INSERT INTO tasks (title, status, priority, due_date) VALUES
-        ('Follow up with Tech Corp', 'Open', 'High', '2026-01-25'),
-        ('Prepare demo for Innovate Labs', 'Open', 'High', '2026-01-22'),
-        ('Send contract to Growth Inc', 'In Progress', 'Medium', '2026-01-23'),
-        ('Schedule meeting with Enterprise Co', 'Open', 'Medium', '2026-01-26'),
-        ('Update proposal for StartupX', 'In Progress', 'High', '2026-01-21'),
-        ('Review requirements - Enterprise', 'Completed', 'Low', '2026-01-20'),
-        ('Send invoice to Tech Corp', 'Completed', 'Medium', '2026-01-19'),
-        ('Call John Smith', 'Open', 'High', '2026-01-21')
-      `);
+    // Seed tasks
+    console.log('🌱 Seeding new tasks...');
+    await pool.query(`
+      INSERT INTO tasks (title, status, priority, due_date) VALUES
+      ('Follow up with Tech Corp', 'Open', 'High', '2026-01-25'),
+      ('Prepare demo for Innovate Labs', 'Open', 'High', '2026-01-22'),
+      ('Send contract to Growth Inc', 'In Progress', 'Medium', '2026-01-23'),
+      ('Schedule meeting with Enterprise Co', 'Open', 'Medium', '2026-01-26'),
+      ('Update proposal for StartupX', 'In Progress', 'High', '2026-01-21'),
+      ('Review requirements - Enterprise', 'Completed', 'Low', '2026-01-20'),
+      ('Send invoice to Tech Corp', 'Completed', 'Medium', '2026-01-19'),
+      ('Call John Smith', 'Open', 'High', '2026-01-21')
+    `);
 
-      console.log('Database initialized with sample data');
-    }
+    console.log('✅ Database initialized with NEW sample data');
+    
   } catch (error) {
     console.error('Database initialization error:', error);
   }

@@ -12,12 +12,12 @@ async function seedDatabase() {
   try {
     console.log('🌱 Starting database seed...');
 
-    // Check if data already exists
-    const checkCustomers = await pool.query('SELECT COUNT(*) FROM customers');
-    if (parseInt(checkCustomers.rows[0].count) > 0) {
-      console.log('✅ Data already exists, skipping seed');
-      process.exit(0);
-    }
+    // --- CHANGE STARTS HERE ---
+    // Instead of checking if data exists, we WIPE IT out.
+    console.log('🗑️ Clearing old data...');
+    // TRUNCATE wipes the tables clean so we can add fresh numbers
+    await pool.query('TRUNCATE TABLE deals, tasks, customers RESTART IDENTITY CASCADE');
+    // --- CHANGE ENDS HERE ---
 
     console.log('📝 Seeding customers...');
     await pool.query(`
@@ -31,9 +31,10 @@ async function seedDatabase() {
     `);
 
     console.log('📝 Seeding deals...');
+    // UPDATE YOUR NUMBERS HERE! 👇
     await pool.query(`
       INSERT INTO deals (title, amount, stage, customer_id) VALUES
-      ('Enterprise License', 50000, 'Closed Won', 1),
+      ('Enterprise License', 95000, 'Closed Won', 1),     <-- Changed to 95,000
       ('Implementation Services', 25000, 'Negotiation', 2),
       ('Annual Subscription', 15000, 'Proposal', 3),
       ('Consulting Package', 35000, 'Qualification', 4),
@@ -57,9 +58,6 @@ async function seedDatabase() {
     `);
 
     console.log('✅ Database seeded successfully!');
-    console.log('📊 Customers: 6');
-    console.log('💼 Deals: 8');
-    console.log('📋 Tasks: 8');
     
     await pool.end();
     process.exit(0);
