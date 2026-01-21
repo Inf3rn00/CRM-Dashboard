@@ -1,42 +1,38 @@
-name: Deploy to CentOS Server
+name: Deploy to Local Hyper-V
 
 on:
   push:
-    branches: [ main ]  # Trigger this ONLY when you push to 'main' branch
+    branches: [ main ]
 
 jobs:
   deploy:
-    name: Deploy to Server
-    runs-on: ubuntu-latest
+    # 1. This tells GitHub: "Send this job to my local CentOS VM"
+    runs-on: self-hosted
 
     steps:
-    # 1. Check out the latest code
+    # 2. Download the code onto the VM
     - name: Checkout Code
       uses: actions/checkout@v2
 
-    # 2. SSH into Server and Update
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.SERVER_PASSWORD }}
-        script: |
-          # A. Create folder if it doesn't exist
-          mkdir -p my-app
-          cd my-app
-
-          # B. Pull latest code (Clone if empty, Pull if exists)
-          if [ -d ".git" ]; then
-            git pull origin main
-          else
-            git clone https://github.com/${{ github.repository }}.git .
-          fi
-
-          # D. Rebuild and Restart Containers
-          # This command stops old containers, rebuilds new ones, and starts them
-          sudo docker compose down
-          sudo docker compose up -d --build
-
-          # E. Clean up unused images to save space
-          sudo docker system prune -f
+    # 3. Run commands DIRECTLY (No SSH needed anymore!)
+    - name: Build and Run
+      run: |
+        echo "🚀 I am running inside your local CentOS VM!"
+        
+        # Navigate to the folder where the runner downloaded the code
+        # (The runner automatically puts us in the right folder)
+        
+        # Run Docker commands directly
+        # Note: Since you ran the runner as Root, we don't strictly need sudo, 
+        # but it's safe to keep it.
+        
+        if [ -f "docker-compose.yml" ]; then
+          docker compose down
+          docker compose up -d --build
+          docker system prune -f
+          echo "✅ Deployment Successful!"
+        else
+          echo "⚠️ Error: docker-compose.yml not found in $(pwd)"
+          ls -la
+          exit 1
+        fi
