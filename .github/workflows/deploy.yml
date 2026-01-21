@@ -33,11 +33,6 @@ jobs:
             git clone https://github.com/${{ github.repository }}.git .
           fi
 
-          # C. Create .env file from GitHub Secrets (So Docker can read passwords)
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
-          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-
           # D. Rebuild and Restart Containers
           # This command stops old containers, rebuilds new ones, and starts them
           sudo docker compose down
