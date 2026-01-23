@@ -11,16 +11,13 @@ function App() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    // CHANGED: We now use a "Relative Path"
-    // This forces the request to go through the Vite Proxy in vite.config.js
-    // ensuring it works on Mobile, Localhost, and Docker simultaneously.
-    fetch('/api/dashboard')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Server error: ${res.status}`)
-        }
-        return res.json()
-      })
+    // Use the Docker service name when running in containers
+    const apiUrl = import.meta.env.DEV 
+      ? 'http://192.168.88.132:5001/api/dashboard'  // For local dev
+      : 'http://dashboard-backend:5000/api/dashboard'  // For Docker network
+    
+    fetch(apiUrl)
+      .then((res) => res.json())
       .then((data) => {
         setData(data)
         setLoading(false)
@@ -46,7 +43,7 @@ function App() {
     return (
       <div className="app-container">
         <div className="error-message">
-          <p> Error: {error}</p>
+          <p>❌ Error: {error}</p>
         </div>
       </div>
     )

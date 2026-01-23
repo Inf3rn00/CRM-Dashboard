@@ -4,14 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true,      // Allows external connections (Mobile)
-    port: 5174,      // The port you are using
-    proxy: {
-      '/api': {
-        target: 'http://backend:5000', // Points to the Docker Container named "backend"
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    host: '0.0.0.0',
+    port: 5173,
   },
 })
