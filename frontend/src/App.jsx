@@ -17,7 +17,7 @@ useEffect(() => {
     // (If using VPN/Tailscale, use the 100.x.x.x IP).
     
     const CENTOS_IP = '192.168.88.132'; // <--- CHANGE THIS to your server's IP
-    const apiUrl = `http://${CENTOS_IP}:5000/api/dashboard`;
+    const apiUrl = `http://${CENTOS_IP}:5001/api/dashboard`;
     
     fetch(apiUrl)
       .then((res) => {

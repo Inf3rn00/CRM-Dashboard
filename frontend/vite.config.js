@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,      // Allows external connections (Mobile)
-    port: 5174,      // The port you are using
+    port: 5173,      // The port you are using
     proxy: {
       '/api': {
         target: 'http://backend:5000', // Points to the Docker Container named "backend"
