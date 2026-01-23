@@ -1,6 +1,6 @@
 .app-container {
   min-height: 100vh;
-  background-color: yellow;
+  background-color: off-white;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border);
