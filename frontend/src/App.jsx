@@ -10,28 +10,30 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    // CHANGED: We now use a "Relative Path"
-    // This forces the request to go through the Vite Proxy in vite.config.js
-    // ensuring it works on Mobile, Localhost, and Docker simultaneously.
-    fetch('/api/dashboard')
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Server error: ${res.status}`)
-        }
-        return res.json()
+useEffect(() => {
+    // CRITICAL FIX:
+    // We are hardcoding the IP so your Phone knows exactly where to look.
+    // Replace '192.168.88.132' with your ACTUAL CentOS IP Address.
+    // (If using VPN/Tailscale, use the 100.x.x.x IP).
+    
+    const CENTOS_IP = '192.168.88.132'; // <--- CHANGE THIS to your server's IP
+    const apiUrl = `http://${CENTOS_IP}:5000/api/dashboard`;
+    
+    fetch(apiUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to connect to Backend");
+        return res.json();
       })
-      .then((data) => {
-        setData(data)
-        setLoading(false)
-      })
-      .catch((err) => {
-        console.error('Error:', err)
-        setError(err.message)
-        setLoading(false)
-      })
-  }, [])
-
+      .then((data) => {
+        setData(data)
+        setLoading(false)
+      })
+      .catch((err) => {
+        console.error('Error:', err)
+        setError(err.message + ". Check if Port 5000 is open!")
+        setLoading(false)
+      })
+  }, [])
   if (loading) {
     return (
       <div className="app-container">
@@ -46,7 +48,7 @@ function App() {
     return (
       <div className="app-container">
         <div className="error-message">
-          <p> Error: {error}</p>
+          <p>❌ Error: {error}</p>
         </div>
       </div>
     )
